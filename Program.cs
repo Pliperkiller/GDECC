@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MigrationAPI.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,10 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MigrationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Set Batch settings
+builder.Services.Configure<BatchController>(builder.Configuration.GetSection("BatchSettings"));
+
 
 var app = builder.Build();
 

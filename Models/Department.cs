@@ -2,10 +2,14 @@
 {
     public class Department
     {
-        public double id { get; set; }
-        public string department { get; set; }
+        public double id;
+        public string department;
 
         
-        //TODO set parameters to private and add getter an setter methods
+        public Department(int _id, string _dep)
+        {
+            id = _id;
+            department = _dep;
+        }
     }
 }

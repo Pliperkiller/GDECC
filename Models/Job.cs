@@ -2,10 +2,14 @@
 {
     public class Job
     {
-        public double id { get; set; }
-        public string job { get; set; }
+        public double id;
+        public string job;
 
         
-        //TODO set parameters to private and add getter an setter methods
+        public Job(double _id, string _job)
+        {
+            id = _id;
+            job = _job; 
+        }
     }
 }
