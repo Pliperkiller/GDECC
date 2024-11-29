@@ -119,7 +119,7 @@ public class MigrationController : ControllerBase
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    await _context.Employees.AddRangeAsync(batch);
+                    await _context.Departments.AddRangeAsync(batch);
                     await _context.SaveChangesAsync();
 
                     // Confirmar la transacción
@@ -133,7 +133,7 @@ public class MigrationController : ControllerBase
                 }
             }
 
-            return Ok(new { Message = "Departments file processed successfully", TotalRecords = depa.Count, Batches = totalBatches });
+            return Ok(new { Message = "Departments file processed successfully", TotalRecords = departments.Count, Batches = totalBatches });
 
 
         }
