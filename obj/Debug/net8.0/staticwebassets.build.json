@@ -1,12 +1,11 @@
 {
   "Version": 1,
-  "Hash": "4alnvod3GVC4sEqURWsq5NRQ2ZFvPN59kC/yXD2gmP8=",
+  "Hash": "xkdKUmGvxMgRWFUBQbtCFEZBpsVqNXEiRoleaMIblHQ=",
   "Source": "MigrationAPI",
   "BasePath": "_content/MigrationAPI",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
+  "Assets": []
 }

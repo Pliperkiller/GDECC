@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MigrationAPI.Controllers;
 using MigrationAPI.Models;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -43,11 +44,16 @@ public class MigrationController : ControllerBase
             using var csv = new CsvReader(stream, CultureInfo.InvariantCulture);
             var records = csv.GetRecords<EmployeeCsvModel>().ToList();
 
-            var employees = records.Select(r => 
-                
-            new Employee(r.GetValidId(),r.FillNullName(),r.GetLocalDateTime(),r.GetValidDepartmentId(),r.GetValidJobId())
-                
-                ).ToList();
+            var employees = records.Select(r => new Employee 
+            { 
+                id = r.GetValidId(),
+                name = r.FillNullName(),
+                datetime = r.GetLocalDateTime(),
+                department_id = r.GetValidDepartmentId(),
+                job_id = r.GetValidJobId()
+
+            }
+            ).ToList();
 
             var totalBatches = (int)Math.Ceiling((double)employees.Count / _batchSize);
 
@@ -88,6 +94,7 @@ public class MigrationController : ControllerBase
     /// Upload a CSV file for Departments and save it to the database.
     
     [HttpPost("upload/departments")]
+    
     public async Task<IActionResult> UploadDepartments(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -95,48 +102,58 @@ public class MigrationController : ControllerBase
 
         try
         {
-            using var stream = new StreamReader(file.OpenReadStream(), Encoding.UTF8);
-            using var csv = new CsvReader(stream, CultureInfo.InvariantCulture);
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture) 
+            {
+                HasHeaderRecord = false
+            };
 
+            using var stream = new StreamReader(file.OpenReadStream(), Encoding.UTF8);
+            using var csv = new CsvReader(stream,config);
+
+            csv.Context.RegisterClassMap<DepartmentCsvModelMap>();
 
             var records = csv.GetRecords<DepartmentCsvModel>().ToList();
 
-
-
-            var departments = records.Select(r => 
-            
-                new Department(r.GetValidId(), r.GetValidDepartment())
-
+            var departments = records.Select(r => new Department
+            {
+                department = r.GetValidDepartment()
+            }
             ).ToList();
 
             var totalBatches = (int)Math.Ceiling((double)departments.Count / _batchSize);
 
-            for (int i = 0; i < totalBatches; i++) 
+            for (int i = 0;i < totalBatches; i++)
             {
-
                 var batch = departments.Skip(i * _batchSize).Take(_batchSize).ToList();
 
+                var excecutionStrategy = _context.Database.CreateExecutionStrategy();
 
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                try
+                await excecutionStrategy.ExecuteAsync(async () =>
                 {
-                    await _context.Departments.AddRangeAsync(batch);
-                    await _context.SaveChangesAsync();
+                    using var transaction = await _context.Database.BeginTransactionAsync();
 
+                    try
+                    {
+                        await _context.Departments.AddRangeAsync(batch);
+                        await _context.SaveChangesAsync();
 
-                    await transaction.CommitAsync();
-                }
-                catch (Exception e)
-                {
+                        await transaction.CommitAsync();
+                    }
+                    catch (Exception e) 
+                    {
+                        await transaction.RollbackAsync();
+                        var exceptionMessage = $"Failed to process batch {i + 1} of {totalBatches}. Exception: {e.Message}";
+                        if (e.InnerException != null)
+                        {
+                            exceptionMessage += $"\nInner Exception: {e.InnerException.Message}";
+                            exceptionMessage += $"\nStack Trace: {e.InnerException.StackTrace}";
+                        }
+                    }
 
-                    await transaction.RollbackAsync();
-                    return StatusCode(500, $"Failed to process batch {i + 1} of {totalBatches} with exception /n [ {e.Message} ]");
-                }
+                });
             }
 
-            return Ok(new { Message = "Departments file processed successfully", TotalRecords = departments.Count, Batches = totalBatches });
-
-
+            return Ok(new { Message = "Department file processed successfully", RecordCount = records.Count });
         }
         catch (Exception e)
         {
@@ -155,22 +172,24 @@ public class MigrationController : ControllerBase
 
         try
         {
-            // Usar CsvConfiguration para desactivar los encabezados
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                HasHeaderRecord = false  // Desactivar la búsqueda de encabezados
+                HasHeaderRecord = false  
             };
 
             using var stream = new StreamReader(file.OpenReadStream(), Encoding.UTF8);
-            using var csv = new CsvReader(stream, config); // Pasar la configuración al CsvReader
+            using var csv = new CsvReader(stream, config); 
 
-            // Registra el ClassMap para JobCsvModel
             csv.Context.RegisterClassMap<JobCsvModelMap>();
 
             var records = csv.GetRecords<JobCsvModel>().ToList();
 
-            var jobs = records.Select(r =>
-                new Job(r.GetValidId(), r.GetValidJob())
+            var jobs = records.Select(r => new Job
+            {
+
+                job = r.GetValidJob()
+            }
+
             ).ToList();
 
             var totalBatches = (int)Math.Ceiling((double)jobs.Count / _batchSize);
@@ -179,20 +198,30 @@ public class MigrationController : ControllerBase
             {
                 var batch = jobs.Skip(i * _batchSize).Take(_batchSize).ToList();
 
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                var executionStrategy = _context.Database.CreateExecutionStrategy();
 
-                try
+                await executionStrategy.ExecuteAsync(async () =>
                 {
-                    await _context.Jobs.AddRangeAsync(batch);
-                    await _context.SaveChangesAsync();
+                    using var transaction = await _context.Database.BeginTransactionAsync();
 
-                    await transaction.CommitAsync();
-                }
-                catch (Exception e)
-                {
-                    await transaction.RollbackAsync();
-                    return StatusCode(500, $"Failed to process batch {i + 1} of {totalBatches} with exception /n [ {e.Message} ]");
-                }
+                    try
+                    {
+                        await _context.Jobs.AddRangeAsync(batch);
+                        await _context.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        await transaction.RollbackAsync();
+                        var exceptionMessage = $"Failed to process batch {i + 1} of {totalBatches}. Exception: {e.Message}";
+                        if (e.InnerException != null)
+                        {
+                            exceptionMessage += $"\nInner Exception: {e.InnerException.Message}";
+                            exceptionMessage += $"\nStack Trace: {e.InnerException.StackTrace}";
+                        }
+                    }
+                });
             }
 
             return Ok(new { Message = "Jobs file processed successfully", RecordCount = records.Count });
@@ -219,25 +248,25 @@ public class MigrationController : ControllerBase
 
 public class EmployeeCsvModel
 {
-    private string _id;
-    private string _name;
-    private string _datetime;
-    private string _departmentId;
-    private string _jobId;
+    public string _id;
+    public string _name;
+    public string _datetime;
+    public string _departmentId;
+    public string _jobId;
 
-    public double GetValidId()
+    public int GetValidId()
     {
-        return double.TryParse(_id, out var parseId) ? parseId : -1;
+        return int.TryParse(_id, out var parseId) ? parseId : -1;
     }
 
     public int GetValidDepartmentId()
     {
-        return int.TryParse(_departmentId, out var parsedId) ? parsedId : -1;
+        return int.TryParse(_departmentId, out var parsedId) ? parsedId : 10000;
     }
 
     public int GetValidJobId()
     {
-        return int.TryParse(_jobId, out var parsedId) ? parsedId : -1;
+        return int.TryParse(_jobId, out var parsedId) ? parsedId : 10000;
     }
 
     public DateTime GetLocalDateTime() {
@@ -252,12 +281,26 @@ public class EmployeeCsvModel
 
 }
 
+public class EmployeeCsvModelMap : ClassMap<EmployeeCsvModel>
+{
+    public EmployeeCsvModelMap()
+    {
+        Map(m => m._id).Name("Id");
+        Map(m => m._name).Name("Name");
+        Map(m => m._datetime).Name("DateTime");
+        Map(m => m._departmentId).Name("DepartmentId");
+        Map(m => m._jobId).Name("JobId");
+    }
+}
+
+
 public class DepartmentCsvModel
 {
-    private string _id;
-    private string _department;
+    public string _id;
+    public string _department;
 
-    public int GetValidId() { 
+    public int GetValidId() 
+    { 
         return int.TryParse(_id, out var parseId) ? parseId : -1;
     }
 
@@ -266,8 +309,16 @@ public class DepartmentCsvModel
         return string.IsNullOrWhiteSpace(_department) ? "UNNAMED" : _department;
     }
 
-
 }
+public class DepartmentCsvModelMap : ClassMap<DepartmentCsvModel>
+{
+    public DepartmentCsvModelMap()
+    {
+        Map(m => m._id).Name("Id");
+        Map(m => m._department).Name("Job");
+    }
+}
+
 
 public class JobCsvModel
 {
@@ -279,7 +330,7 @@ public class JobCsvModel
         return int.TryParse(_id, out var parseId) ? parseId : -1;
     }
 
-    public string GetValidJob()
+    public string GetValidJob() 
     {
         return string.IsNullOrWhiteSpace(_job) ? "UNNAMED" : _job;
     }

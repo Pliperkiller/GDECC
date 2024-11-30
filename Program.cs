@@ -1,7 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using MigrationAPI.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
+
+
+// Configure the DbContext with a connection string
+builder.Services.AddDbContext<MigrationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCn"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()));
+
+// Set Batch settings
+builder.Services.Configure<BatchController>(builder.Configuration.GetSection("BatchSettings"));
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -10,16 +24,30 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure the DbContext with a connection string
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<MigrationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
-// Set Batch settings
-builder.Services.Configure<BatchController>(builder.Configuration.GetSection("BatchSettings"));
-
-
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<MigrationDbContext>();
+    dbContext.Database.Migrate();
+}
+
+
+//Delete tables when stopping app
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+
+lifetime.ApplicationStopping.Register(() =>
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<MigrationDbContext>();
+
+
+        dbContext.Database.EnsureDeleted();
+    }
+});
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
