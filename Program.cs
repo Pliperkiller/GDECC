@@ -20,6 +20,7 @@ builder.Services.Configure<BatchController>(builder.Configuration.GetSection("Ba
 // Add services to the container.
 builder.Services.AddControllers();
 
+
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -31,21 +32,6 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<MigrationDbContext>();
     dbContext.Database.Migrate();
 }
-
-
-//Delete tables when stopping app
-var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-
-lifetime.ApplicationStopping.Register(() =>
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<MigrationDbContext>();
-
-
-        dbContext.Database.EnsureDeleted();
-    }
-});
 
 
 

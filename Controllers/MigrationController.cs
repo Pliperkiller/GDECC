@@ -40,13 +40,21 @@ public class MigrationController : ControllerBase
 
         try
         {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = false
+            };
+
             using var stream = new StreamReader(file.OpenReadStream(), Encoding.UTF8);
-            using var csv = new CsvReader(stream, CultureInfo.InvariantCulture);
+            using var csv = new CsvReader(stream, config);
+
+            csv.Context.RegisterClassMap<EmployeeCsvModelMap>();
+
             var records = csv.GetRecords<EmployeeCsvModel>().ToList();
 
             var employees = records.Select(r => new Employee 
             { 
-                id = r.GetValidId(),
+
                 name = r.FillNullName(),
                 datetime = r.GetLocalDateTime(),
                 department_id = r.GetValidDepartmentId(),
@@ -62,22 +70,32 @@ public class MigrationController : ControllerBase
 
                 var batch = employees.Skip(i * _batchSize).Take(_batchSize).ToList();
 
+                var excecutionStrategy = _context.Database.CreateExecutionStrategy();
 
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                try
+                await excecutionStrategy.ExecuteAsync(async () =>
                 {
-                    await _context.Employees.AddRangeAsync(batch);
-                    await _context.SaveChangesAsync();
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+                    try
+                    {
+                        await _context.Employees.AddRangeAsync(batch);
+                        await _context.SaveChangesAsync();
 
 
-                    await transaction.CommitAsync();
-                }
-                catch (Exception e)
-                {
+                        await transaction.CommitAsync();
+                    }
+                    catch (Exception e)
+                    {
 
-                    await transaction.RollbackAsync();
-                    return StatusCode(500, $"Failed to process batch {i + 1} of {totalBatches} with exception /n [ {e.Message} ]");
-                }
+                        await transaction.RollbackAsync();
+                        var exceptionMessage = $"Failed to process batch {i + 1} of {totalBatches}. Exception: {e.Message}";
+                        if (e.InnerException != null)
+                        {
+                            exceptionMessage += $"\nInner Exception: {e.InnerException.Message}";
+                            exceptionMessage += $"\nStack Trace: {e.InnerException.StackTrace}";
+                        }
+                    }
+
+                });
             }
 
             return Ok(new { Message = "Employees file processed successfully", TotalRecords = employees.Count, Batches = totalBatches });
@@ -261,16 +279,17 @@ public class EmployeeCsvModel
 
     public int GetValidDepartmentId()
     {
-        return int.TryParse(_departmentId, out var parsedId) ? parsedId : 10000;
+        return int.TryParse(_departmentId, out var parsedId) ? (parsedId + 10000) : 10000;
     }
 
     public int GetValidJobId()
     {
-        return int.TryParse(_jobId, out var parsedId) ? parsedId : 10000;
+        return int.TryParse(_jobId, out var parsedId) ? (parsedId + 10000) : 10000;
     }
 
     public DateTime GetLocalDateTime() {
-        return DateTime.Parse(_datetime).ToLocalTime();
+
+        return DateTime.TryParse(_datetime, out var parsedDateTime)? parsedDateTime.ToLocalTime(): DateTime.MinValue;
     }
 
     public string FillNullName()
