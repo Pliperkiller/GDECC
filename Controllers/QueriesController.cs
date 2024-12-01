@@ -17,105 +17,71 @@ namespace MigrationAPI.Controllers
             _configuration = configuration;
         }
 
-        [HttpGet("extract/hired")]
-        public IActionResult GetHired() {
-
-            string QueryFilePath = Path.Combine(
-                Directory.GetCurrentDirectory(), 
-                "Queries",
-                "SQL_DepartmentKpiHiredDescriptor.sql");
-
-            string sqlQuery;
-            using (StreamReader reader = new StreamReader(QueryFilePath, Encoding.UTF8))
+        private IActionResult ExecuteQuery(string queryFileName)
+        {
+            try
             {
-                sqlQuery = reader.ReadToEnd();
+                string sqlQuery = LoadQueryFromFile(queryFileName);
+
+                DataTable dataTable = ExecuteSqlQuery(sqlQuery);
+
+                var result = ConvertDataTableToList(dataTable);
+
+                string jsonResult = JsonSerializer.Serialize(result);
+
+                return Content(jsonResult, "application/json");
             }
-
-            DataTable dataTable = new DataTable("QueryResult");
-
-            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultCn")))
+            catch (Exception e)
             {
-                connection.Open();
-                try
-                {
-                    SqlDataAdapter adapter = new SqlDataAdapter(sqlQuery, connection);
-                    adapter.Fill(dataTable);
-                }
-                catch (Exception e)
-                {
-                    var exceptionMessage = $"Failed to retrieve data. Exception: {e.Message}";
-                
-                }
-                finally
-                {
-                    connection.Close();
-                }
+                return StatusCode(500, new { Error = $"Failed to execute exception: {e.Message}" });
             }
-
-
-
-            var result = new List<Dictionary<string, object>>();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                var rowDict = new Dictionary<string, object>();
-                foreach (DataColumn column in dataTable.Columns)
-                {
-                    rowDict[column.ColumnName] = row[column];
-                }
-                result.Add(rowDict);
-            }
-
-            var response = new
-            {
-                Results = result
-            };
-
-            string jsonResult = JsonSerializer.Serialize(result);
-
-            return Content(jsonResult, "application/json");
-
         }
 
+        [HttpGet("extract/hired")]
+        public IActionResult GetHired()
+        {
+            return ExecuteQuery("SQL_DepartmentKpiHiredDescriptor.sql");
+        }
 
         [HttpGet("extract/quarters")]
         public IActionResult GetQuarters()
         {
+            return ExecuteQuery("SQL_QuarterKpiIndicators.sql");
+        }
 
-            string QueryFilePath = Path.Combine(
+        private string LoadQueryFromFile(string fileName)
+        {
+            string queryFilePath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "Queries",
-                "SQL_QuarterKpiIndicators.sql");
+                fileName);
 
-            string sqlQuery;
-            using (StreamReader reader = new StreamReader(QueryFilePath, Encoding.UTF8))
+            using (StreamReader reader = new StreamReader(queryFilePath, Encoding.UTF8))
             {
-                sqlQuery = reader.ReadToEnd();
+                return reader.ReadToEnd();
             }
+        }
 
+        private DataTable ExecuteSqlQuery(string sqlQuery)
+        {
             DataTable dataTable = new DataTable("QueryResult");
 
             using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultCn")))
             {
                 connection.Open();
-                try
+                using (SqlDataAdapter adapter = new SqlDataAdapter(sqlQuery, connection))
                 {
-                    SqlDataAdapter adapter = new SqlDataAdapter(sqlQuery, connection);
                     adapter.Fill(dataTable);
-                }
-                catch (Exception e)
-                {
-                    var exceptionMessage = $"Failed to retrieve data. Exception: {e.Message}";
-
-                }
-                finally
-                {
-                    connection.Close();
                 }
             }
 
+            return dataTable;
+        }
 
-
+        private List<Dictionary<string, object>> ConvertDataTableToList(DataTable dataTable)
+        {
             var result = new List<Dictionary<string, object>>();
+
             foreach (DataRow row in dataTable.Rows)
             {
                 var rowDict = new Dictionary<string, object>();
@@ -126,16 +92,7 @@ namespace MigrationAPI.Controllers
                 result.Add(rowDict);
             }
 
-            var response = new
-            {
-                Results = result
-            };
-
-            string jsonResult = JsonSerializer.Serialize(result);
-
-            return Content(jsonResult, "application/json");
-
+            return result;
         }
-
     }
 }
