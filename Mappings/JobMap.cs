@@ -4,14 +4,13 @@ namespace MigrationAPI.Mappings
 {
     public class JobCsvModel
     {
-        public string _id;
+        public string _jobId;
         public string _job;
 
-        public int GetValidId()
+        public int GetValidJobId()
         {
-            return int.TryParse(_id, out var parseId) ? parseId : -1;
+            return int.TryParse(_jobId, out var parseId) ? parseId : -1;
         }
-
         public string GetValidJob()
         {
             return string.IsNullOrWhiteSpace(_job) ? "UNNAMED" : _job;
@@ -24,7 +23,8 @@ namespace MigrationAPI.Mappings
     {
         public JobCsvModelMap()
         {
-            Map(m => m._id).Name("Id");
+
+            Map(m => m._jobId).Name("JobId");
             Map(m => m._job).Name("Job");
         }
     }

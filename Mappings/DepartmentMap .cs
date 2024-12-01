@@ -5,12 +5,13 @@ namespace MigrationAPI.Mappings
 
     public class DepartmentCsvModel
     {
-        public string _id;
+
+        public string _departmentId;
         public string _department;
 
-        public int GetValidId()
+        public int GetValidDepartmentId()
         {
-            return int.TryParse(_id, out var parseId) ? parseId : -1;
+            return int.TryParse(_departmentId, out var parseId) ? parseId : -1;
         }
 
         public string GetValidDepartment()
@@ -23,8 +24,8 @@ namespace MigrationAPI.Mappings
     {
         public DepartmentCsvModelMap()
         {
-            Map(m => m._id).Name("Id");
-            Map(m => m._department).Name("Job");
+            Map(m => m._departmentId).Name("DepartmentId");
+            Map(m => m._department).Name("Department");
         }
     }
 

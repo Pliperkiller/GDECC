@@ -17,6 +17,7 @@ namespace MigrationAPI.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    departmentId = table.Column<int>(type: "int", nullable: false),
                     department = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
                 },
                 constraints: table =>
@@ -25,75 +26,55 @@ namespace MigrationAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Employee",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    hiredDatetime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    department_id = table.Column<int>(type: "int", nullable: false),
+                    employeeId = table.Column<int>(type: "int", nullable: false),
+                    job_id = table.Column<int>(type: "int", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Employee", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Job",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    job = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
+                    job = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    jobId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Job", x => x.id);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Employee",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    department_id = table.Column<int>(type: "int", nullable: false),
-                    job_id = table.Column<int>(type: "int", nullable: false),
-                    datetime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    name = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Employee", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_Employee_Department_department_id",
-                        column: x => x.department_id,
-                        principalTable: "Department",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Employee_Job_job_id",
-                        column: x => x.job_id,
-                        principalTable: "Job",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.InsertData(
                 table: "Department",
-                columns: new[] { "id", "department" },
-                values: new object[] { 10000, "Unknown" });
+                columns: new[] { "id", "department", "departmentId" },
+                values: new object[] { 1, "Unknown", 0 });
 
             migrationBuilder.InsertData(
                 table: "Job",
-                columns: new[] { "id", "job" },
-                values: new object[] { 10000, "Unknown" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Employee_department_id",
-                table: "Employee",
-                column: "department_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Employee_job_id",
-                table: "Employee",
-                column: "job_id");
+                columns: new[] { "id", "job", "jobId" },
+                values: new object[] { 1, "Unknown", 0 });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Employee");
+                name: "Department");
 
             migrationBuilder.DropTable(
-                name: "Department");
+                name: "Employee");
 
             migrationBuilder.DropTable(
                 name: "Job");

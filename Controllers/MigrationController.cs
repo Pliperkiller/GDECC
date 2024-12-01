@@ -30,6 +30,7 @@ public class MigrationController : ControllerBase
             map: () => new EmployeeCsvModelMap(),
             transform: r => new Employee
             {
+                employeeId = r.GetValidEmployeeId(),
                 name = r.FillNullName(),
                 datetime = r.GetLocalDateTime(),
                 department_id = r.GetValidDepartmentId(),
@@ -48,6 +49,7 @@ public class MigrationController : ControllerBase
             map: () => new DepartmentCsvModelMap(),
             transform: r => new Department
             {
+                departmentId = r.GetValidDepartmentId(),
                 department = r.GetValidDepartment()
             },
             dbSet: _context.Departments,
@@ -63,6 +65,7 @@ public class MigrationController : ControllerBase
             map: () => new JobCsvModelMap(),
             transform: r => new Job
             {
+                jobId = r.GetValidJobId(),
                 job = r.GetValidJob()
             },
             dbSet: _context.Jobs,

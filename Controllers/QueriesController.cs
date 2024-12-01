@@ -7,7 +7,7 @@ using System.Text.Json;
 namespace MigrationAPI.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/extract")]
     public class QueriesController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -37,17 +37,24 @@ namespace MigrationAPI.Controllers
             }
         }
 
-        [HttpGet("extract/hired")]
+        [HttpGet("hired-by-department")]
         public IActionResult GetHired()
         {
             return ExecuteQuery("SQL_DepartmentKpiHiredDescriptor.sql");
         }
 
-        [HttpGet("extract/quarters")]
+        [HttpGet("hired-by-quarters")]
         public IActionResult GetQuarters()
         {
             return ExecuteQuery("SQL_QuarterKpiIndicators.sql");
         }
+
+        [HttpDelete("delete/reset-db")]
+        public IActionResult ResetDatabase()
+        {
+            return ExecuteQuery("SQL_ResetDB.sql");
+        }
+
 
         private string LoadQueryFromFile(string fileName)
         {

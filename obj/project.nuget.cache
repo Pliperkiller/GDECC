@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "vdkjaXTcTgzpQVz3e9MLW0Sl9VfAOD9h2DWewWbGQ/Xabw2nUuSZmQMlKi53ttBxHzzk80OWBQCrA2Hpir/nAQ==",
+  "dgSpecHash": "Bw9r5eXKthGE9lzruftwV8lqEAokKIMqoKatBVcWMcj+qeYGKA3y/19Wag0OwSZIDkpNodi6FwR+9NJjc6TxRg==",
   "success": true,
   "projectFilePath": "C:\\Users\\pipek\\Documents\\codefolder\\MigrationAPI\\MigrationAPI.csproj",
   "expectedPackageFiles": [
@@ -52,6 +52,7 @@
     "C:\\Users\\pipek\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
     "C:\\Users\\pipek\\.nuget\\packages\\microsoft.openapi\\1.4.3\\microsoft.openapi.1.4.3.nupkg.sha512",
     "C:\\Users\\pipek\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
+    "C:\\Users\\pipek\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.19.5\\microsoft.visualstudio.azure.containers.tools.targets.1.19.5.nupkg.sha512",
     "C:\\Users\\pipek\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\pipek\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
     "C:\\Users\\pipek\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",

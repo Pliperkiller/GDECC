@@ -1,13 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using MigrationAPI.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-
-
 
 // Configure the DbContext with a connection string
 builder.Services.AddDbContext<MigrationDbContext>(options =>
@@ -35,12 +30,12 @@ using (var scope = app.Services.CreateScope())
 
 
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Migration API V1");
+});
+
 
 app.UseHttpsRedirection();
 

@@ -34,6 +34,9 @@ namespace MigrationAPI.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<int>("departmentId")
+                        .HasColumnType("int");
+
                     b.HasKey("id");
 
                     b.ToTable("Department", (string)null);
@@ -41,8 +44,9 @@ namespace MigrationAPI.Migrations
                     b.HasData(
                         new
                         {
-                            id = 10000,
-                            department = "Unknown"
+                            id = 1,
+                            department = "Unknown",
+                            departmentId = 0
                         });
                 });
 
@@ -55,9 +59,13 @@ namespace MigrationAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<DateTime>("datetime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("hiredDatetime");
 
                     b.Property<int>("department_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("employeeId")
                         .HasColumnType("int");
 
                     b.Property<int>("job_id")
@@ -69,10 +77,6 @@ namespace MigrationAPI.Migrations
                         .HasColumnType("nvarchar(400)");
 
                     b.HasKey("id");
-
-                    b.HasIndex("department_id");
-
-                    b.HasIndex("job_id");
 
                     b.ToTable("Employee", (string)null);
                 });
@@ -90,6 +94,9 @@ namespace MigrationAPI.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<int>("jobId")
+                        .HasColumnType("int");
+
                     b.HasKey("id");
 
                     b.ToTable("Job", (string)null);
@@ -97,38 +104,10 @@ namespace MigrationAPI.Migrations
                     b.HasData(
                         new
                         {
-                            id = 10000,
-                            job = "Unknown"
+                            id = 1,
+                            job = "Unknown",
+                            jobId = 0
                         });
-                });
-
-            modelBuilder.Entity("MigrationAPI.Models.Employee", b =>
-                {
-                    b.HasOne("MigrationAPI.Models.Department", "Department")
-                        .WithMany("Employees")
-                        .HasForeignKey("department_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MigrationAPI.Models.Job", "Job")
-                        .WithMany("Employees")
-                        .HasForeignKey("job_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
-
-                    b.Navigation("Job");
-                });
-
-            modelBuilder.Entity("MigrationAPI.Models.Department", b =>
-                {
-                    b.Navigation("Employees");
-                });
-
-            modelBuilder.Entity("MigrationAPI.Models.Job", b =>
-                {
-                    b.Navigation("Employees");
                 });
 #pragma warning restore 612, 618
         }

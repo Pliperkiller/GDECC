@@ -1,0 +1,8 @@
+﻿DELETE FROM Employee
+DBCC CHECKIDENT ('Employee', RESEED, 0);
+
+DELETE FROM Department
+DBCC CHECKIDENT ('Department', RESEED, 0);
+
+DELETE FROM Job
+DBCC CHECKIDENT ('Job', RESEED, 0);
