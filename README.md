@@ -4,7 +4,7 @@
 This API, built with **ASP.NET**, processes three CSV files: `Jobs.csv`, `Employees.csv`, and `Departments.csv`. The data from these files is read, validated, and inserted into a **SQL Server** database via connection string.  
 
 ## Quick start
--"Open terminal"
+- "Open terminal"
 - "Excecute" git clone https://github.com/Pliperkiller/GDECC.git
 - "Excecute" cd GDECC
 - "Insert your SQLserver connection string inside appsettings.json or request acces to the default configured cloud server."
