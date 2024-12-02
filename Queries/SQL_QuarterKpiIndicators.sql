@@ -28,8 +28,3 @@ job,
 FROM  MAIN_DB
 GROUP BY department,job
 ORDER BY department,job
-
-
-select * from Department
-select * from Job
-select * from Employee
