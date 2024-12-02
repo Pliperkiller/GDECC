@@ -33,7 +33,7 @@ This API, built with **ASP.NET**, processes three CSV files: `Jobs.csv`, `Employ
 
 5. **Containerization**:  
    - A Docker image has been created to streamline the deployment of this API.  
-   - Access the Docker image [here](#https://hub.docker.com/repository/docker/gruposl1e/gdecc/general).
+   - Access the Docker image in the link https://hub.docker.com/repository/docker/gruposl1e/gdecc/general
   
 4. **ONLINE Server**:  
 An Azure SQL server was implemented with limited access by IP address. Since it is not a public server, the IP address access must be requested manually. This can be managed by asking me personally, and in this way, I will assign access to the server so it can be used by the API (see connection string in appsettings.json). 
