@@ -10,7 +10,7 @@
 )
 	
 SELECT 
-b.id,
+b.departmentId,
 b.department,
 COUNT(0) hired
 FROM Employee a 
