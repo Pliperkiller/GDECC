@@ -10,6 +10,7 @@ This API, built with **ASP.NET**, processes three CSV files: `Jobs.csv`, `Employ
 - "Excecute" cd GDECC
 - "Insert your SQLserver connection string inside appsettings.json or request acces to the default configured cloud server."
 - "Excecute" dotnet run
+- API will be running at http://localhost:5000 if run on local
 
 ---
 ## Features  
