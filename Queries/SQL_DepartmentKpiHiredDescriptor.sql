@@ -15,7 +15,7 @@ b.department,
 COUNT(0) hired
 FROM Employee a 
 LEFT JOIN Department b ON (b.departmentId = a.department_id)
-GROUP BY department, b.id
+GROUP BY department, b.departmentId
 HAVING COUNT(0) > (SELECT AVG(SIZE) FROM MEAN_TABLE)
 ORDER BY hired desc
 
