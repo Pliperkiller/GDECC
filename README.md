@@ -57,7 +57,7 @@ The project was integrated with a user interface designed for executing the conf
 
 ### 3. **Migration**  
    **Endpoints**: `/api/upload/employees , /api/upload/departments , /api/upload/jobs`  
-   **Method**: `GET`  
+   **Method**: `POST`  
    **Description**: Try to load the information from the CSV files. If nothing is loaded or the file is empty, return error 400. If the files are incompatible with the established business rules, return error 500. Additionally, return the number of batches loaded (with 1000 rows per batch). The batch loading is implemented such that for every 1000 rows, an insert is executed to the server. If more than 2001 rows are inserted, three data inserts will be performed for the respective file into the server, meaning 3 batches will be inserted. 
 
 ### 4. **Queries**  
