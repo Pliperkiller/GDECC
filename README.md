@@ -42,6 +42,11 @@ An Azure SQL server was implemented with limited access by IP address. Since it 
 5. **MigrationAPI interface via Swagger UI**:  
 The project was integrated with a user interface designed for executing the configured endpoints. It has the option to upload files for requests that have this feature enabled. To access it, go to the URL http://localhost:5000/swagger/index.html after running the application.
 
+6. **Cloud implementation**:
+Project actually running on Azure web ap on migrationapi-cyhwemevchfnd6cp.mexicocentral-01.azurewebsites.net
+you can access to swagger interface via https://migrationapi-cyhwemevchfnd6cp.mexicocentral-01.azurewebsites.net/swagger/index.html
+
+
 ---
 
 ## API Endpoints  
